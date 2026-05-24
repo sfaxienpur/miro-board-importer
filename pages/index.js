@@ -67,8 +67,9 @@ export default function Home() {
 
       const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data.error || "Analysis failed");
+     if (!res.ok) {
+       const detail = data.raw ? `\nRAW: ${data.raw.substring(0, 300)}` : "";
+       throw new Error((data.error || "Analysis failed") + detail);
       }
 
       setBoardData(data);
