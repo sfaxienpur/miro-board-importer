@@ -26,19 +26,23 @@ export default function Home() {
 
   const handleFile = useCallback((file) => {
     if (!file || !file.type.startsWith("image/")) return;
+
     setMediaType(file.type);
+
     const reader = new FileReader();
+
     reader.onload = (e) => {
       const dataUrl = e.target.result;
-      setPreview(dataUrl);
-      // Extract base64 only
       const base64 = dataUrl.split(",")[1];
+
+      setPreview(dataUrl);
       setImageData(base64);
       setStep(STEPS.IDLE);
       setLog([]);
       setError(null);
       setBoardData(null);
     };
+
     reader.readAsDataURL(file);
   }, []);
 
@@ -54,6 +58,7 @@ export default function Home() {
 
   const handleAnalyze = async () => {
     if (!imageData) return;
+
     setStep(STEPS.ANALYZING);
     setLog(["🔍 Analyzing image with Claude Vision..."]);
     setError(null);
@@ -67,19 +72,23 @@ export default function Home() {
 
       const data = await res.json();
 
-     if (!res.ok) {
-       const detail = data.raw ? `\nRAW: ${data.raw.substring(0, 300)}` : "";
-       throw new Error((data.error || "Analysis failed") + detail);
+      if (!res.ok) {
+        const detail = data.raw ? `\nRAW: ${data.raw.substring(0, 300)}` : "";
+        throw new Error((data.error || "Analysis failed") + detail);
       }
 
       setBoardData(data);
+
       const frameCount = data.frames?.length || 0;
       const stickyCount = data.sticky_notes?.length || 0;
       const textCount = data.texts?.length || 0;
       const shapeCount = data.shapes?.length || 0;
 
-      addLog(`✅ Analysis complete!`);
-      addLog(`📦 Found: ${frameCount} sections, ${stickyCount} stickies, ${textCount} texts, ${shapeCount} shapes`);
+      addLog("✅ Analysis complete!");
+      addLog(
+        `📦 Found: ${frameCount} sections, ${stickyCount} stickies, ${textCount} texts, ${shapeCount} shapes`
+      );
+
       setStep(STEPS.RENDERING);
       await handleRender(data);
     } catch (e) {
@@ -118,6 +127,7 @@ export default function Home() {
   };
 
   const isBusy = step === STEPS.ANALYZING || step === STEPS.RENDERING;
+
   const progressPct =
     progress.total > 0 ? Math.round((progress.current / progress.total) * 100) : 0;
 
@@ -146,12 +156,16 @@ export default function Home() {
               className={`drop-zone ${dragOver ? "drag-over" : ""}`}
               onClick={() => fileInputRef.current?.click()}
               onDrop={handleDrop}
-              onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setDragOver(true);
+              }}
               onDragLeave={() => setDragOver(false)}
             >
               <div className="drop-icon">📋</div>
               <div className="drop-title">Drop your workshop image</div>
               <div className="drop-sub">PNG, JPG, WEBP supported</div>
+
               <input
                 ref={fileInputRef}
                 type="file"
@@ -164,6 +178,7 @@ export default function Home() {
             <div className="preview-section">
               <div className="preview-wrapper">
                 <img src={preview} alt="Board preview" className="preview-img" />
+
                 {step === STEPS.DONE && (
                   <div className="done-overlay">
                     <span>✅ Imported!</span>
@@ -187,7 +202,9 @@ export default function Home() {
                   <div className="progress-bar-wrap">
                     <div
                       className="progress-bar-fill"
-                      style={{ width: `${step === STEPS.ANALYZING ? 30 : progressPct}%` }}
+                      style={{
+                        width: `${step === STEPS.ANALYZING ? 30 : progressPct}%`,
+                      }}
                     />
                   </div>
                   <div className="progress-label">
@@ -233,9 +250,14 @@ export default function Home() {
       </div>
 
       <style jsx global>{`
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+        }
+
         body {
-          font-family: 'DM Sans', sans-serif;
+          font-family: "DM Sans", sans-serif;
           background: #0f0f13;
           color: #e8e6f0;
           height: 100vh;
@@ -257,7 +279,7 @@ export default function Home() {
           align-items: center;
           gap: 12px;
           padding-bottom: 12px;
-          border-bottom: 1px solid rgba(255,255,255,0.08);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .logo {
@@ -280,9 +302,9 @@ export default function Home() {
 
         .subtitle {
           font-size: 11px;
-          color: rgba(255,255,255,0.35);
+          color: rgba(255, 255, 255, 0.35);
           margin-left: auto;
-          font-family: 'DM Mono', monospace;
+          font-family: "DM Mono", monospace;
         }
 
         .content {
@@ -307,12 +329,15 @@ export default function Home() {
           background: rgba(167, 139, 250, 0.03);
         }
 
-        .drop-zone:hover, .drop-zone.drag-over {
+        .drop-zone:hover,
+        .drop-zone.drag-over {
           border-color: rgba(167, 139, 250, 0.7);
           background: rgba(167, 139, 250, 0.07);
         }
 
-        .drop-icon { font-size: 36px; }
+        .drop-icon {
+          font-size: 36px;
+        }
 
         .drop-title {
           font-size: 14px;
@@ -322,8 +347,8 @@ export default function Home() {
 
         .drop-sub {
           font-size: 11px;
-          color: rgba(255,255,255,0.3);
-          font-family: 'DM Mono', monospace;
+          color: rgba(255, 255, 255, 0.3);
+          font-family: "DM Mono", monospace;
         }
 
         .preview-section {
@@ -374,11 +399,13 @@ export default function Home() {
           font-size: 13px;
           font-weight: 600;
           cursor: pointer;
-          font-family: 'DM Sans', sans-serif;
+          font-family: "DM Sans", sans-serif;
           transition: background 0.15s;
         }
 
-        .btn-primary:hover { background: #6d28d9; }
+        .btn-primary:hover {
+          background: #6d28d9;
+        }
 
         .btn-success {
           flex: 1;
@@ -389,25 +416,25 @@ export default function Home() {
           border-radius: 8px;
           font-size: 13px;
           font-weight: 600;
-          font-family: 'DM Sans', sans-serif;
+          font-family: "DM Sans", sans-serif;
         }
 
         .btn-ghost {
           padding: 10px 14px;
-          background: rgba(255,255,255,0.06);
-          color: rgba(255,255,255,0.5);
-          border: 1px solid rgba(255,255,255,0.08);
+          background: rgba(255, 255, 255, 0.06);
+          color: rgba(255, 255, 255, 0.5);
+          border: 1px solid rgba(255, 255, 255, 0.08);
           border-radius: 8px;
           font-size: 12px;
           cursor: pointer;
-          font-family: 'DM Sans', sans-serif;
+          font-family: "DM Sans", sans-serif;
           transition: all 0.15s;
           white-space: nowrap;
         }
 
         .btn-ghost:hover {
-          background: rgba(255,255,255,0.1);
-          color: rgba(255,255,255,0.8);
+          background: rgba(255, 255, 255, 0.1);
+          color: rgba(255, 255, 255, 0.8);
         }
 
         .progress-section {
@@ -418,7 +445,7 @@ export default function Home() {
 
         .progress-bar-wrap {
           height: 4px;
-          background: rgba(255,255,255,0.08);
+          background: rgba(255, 255, 255, 0.08);
           border-radius: 4px;
           overflow: hidden;
         }
@@ -432,30 +459,30 @@ export default function Home() {
 
         .progress-label {
           font-size: 11px;
-          color: rgba(255,255,255,0.4);
-          font-family: 'DM Mono', monospace;
+          color: rgba(255, 255, 255, 0.4);
+          font-family: "DM Mono", monospace;
           text-align: right;
         }
 
         .log {
           flex: 1;
           overflow-y: auto;
-          background: rgba(0,0,0,0.3);
+          background: rgba(0, 0, 0, 0.3);
           border-radius: 8px;
           padding: 10px;
-          border: 1px solid rgba(255,255,255,0.06);
+          border: 1px solid rgba(255, 255, 255, 0.06);
         }
 
         .log-line {
           font-size: 11px;
-          color: rgba(255,255,255,0.5);
-          font-family: 'DM Mono', monospace;
+          color: rgba(255, 255, 255, 0.5);
+          font-family: "DM Mono", monospace;
           padding: 2px 0;
           line-height: 1.6;
         }
 
         .log-line:last-child {
-          color: rgba(255,255,255,0.8);
+          color: rgba(255, 255, 255, 0.8);
         }
       `}</style>
     </>
