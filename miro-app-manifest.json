@@ -1,10 +1,7 @@
 {
   "appName": "Board Importer",
   "sdkVersion": "SDK_2",
-  "sdkUri": "https://miro.com/app-sdk/v2.0/miro.js",
-  "icon": {
-    "url": "https://miro-board-importer.vercel.app/"
-  },
+  "sdkUri": "https://miro-board-importer.vercel.app/",
   "permissions": [
     "boards:read",
     "boards:write"
